@@ -179,15 +179,19 @@ func main() { // 程序入口
 		_ = r.Body.Close() // 关闭请求体
 
 		// Log request details // 打印请求详情
-		logger.Infof("%s %s from %s", r.Method, r.URL.Path, r.RemoteAddr) // 打印方法、路径与来源地址
-		for name, values := range r.Header { // 遍历请求头
-			logger.Debugf("Header %s: %s", name, strings.Join(values, ", ")) // 打印每个请求头
+		// 合并所有请求头为一行
+		var headers []string
+		for name, values := range r.Header {
+			headers = append(headers, fmt.Sprintf("%s: %s", name, strings.Join(values, ", ")))
 		}
-		if len(body) > 0 { // 如果有请求体
-			logger.Debugf("Body: %s", string(body)) // 打印请求体内容
-		} else { // 否则
-			logger.Debugf("Body: <empty>") // 标记为空体
+		headersStr := strings.Join(headers, "; ")
+
+		bodyStr := "<empty>"
+		if len(body) > 0 {
+			bodyStr = string(body)
 		}
+
+		logger.Infof("%s %s from %s | Headers: [%s] | Body: %s", r.Method, r.URL.Path, r.RemoteAddr, headersStr, bodyStr)
 
 		w.WriteHeader(http.StatusOK) // 返回 200 状态码
 		_, _ = w.Write([]byte("ok")) // 返回简单内容
