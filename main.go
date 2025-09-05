@@ -2,6 +2,7 @@ package main // 程序入口包
 
 import ( // 导入标准库与第三方库
 	"crypto/tls" // TLS 配置与常量
+	"encoding/json" // JSON 编解码
 	"flag" // 标准 flag 库（与 pflag 结合使用）
 	"fmt" // 字符串格式化
 	"io" // I/O 原语（Reader/Writer/ReadAll）
@@ -179,15 +180,10 @@ func main() { // 程序入口
 		_ = r.Body.Close() // 关闭请求体
 
 		// Log request details // 打印请求详情
-		HeadersStr := "None"
-		var headers []string
-		if len(r.Header) > 0 {
-			HeadersStr = string()
+		headersStr := "{}"
+		if hb, err := json.Marshal(r.Header); err == nil {
+			headersStr = string(hb)
 		}
-		// for name, values := range r.Header {
-		// 	headers = append(headers, fmt.Sprintf("%s: %s", name, strings.Join(values, ", ")))
-		// }
-		// headersStr := strings.Join(headers, "; ")
 
 		bodyStr := "None"
 		if len(body) > 0 {
